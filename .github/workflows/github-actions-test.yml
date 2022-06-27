@@ -3,6 +3,10 @@ on:
   push:
     tags:
       - "v*.*.*"
+    tags-ignore:
+      - "*alpha*"
+      - "*beta*"
+      - "*rc*"
 
 jobs:
   build:
