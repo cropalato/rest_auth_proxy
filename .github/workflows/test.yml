@@ -1,5 +1,9 @@
 on: 
-  push: []
+  push:
+    tags:
+      - *alpha*
+      - *beta*
+      - **
   pull_request: []
 name: Test
 jobs:
