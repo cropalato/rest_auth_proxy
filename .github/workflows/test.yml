@@ -1,4 +1,10 @@
-on: [push, pull_request]
+on: 
+  push:
+    tags:
+      - ""
+  pull_request:
+    tags:
+      - ""
 name: Test
 jobs:
   test:
