@@ -1,9 +1,9 @@
 on: 
   push:
     tags:
-      - *alpha*
-      - *beta*
-      - **
+      - "*alpha*"
+      - "*beta*"
+      - "*rc*"
   pull_request: []
 name: Test
 jobs:
