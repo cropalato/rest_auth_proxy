@@ -1,10 +1,10 @@
 on: 
   push:
     tags-ignore:
-      - "+"
+      - "v+"
   pull_request:
     tags-ignore:
-      - ""
+      - "v+"
 name: Test
 jobs:
   test:
