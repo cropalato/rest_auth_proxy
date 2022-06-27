@@ -1,9 +1,9 @@
 on: 
   push:
-    tags:
-      - ""
+    tags-ignore:
+      - "+"
   pull_request:
-    tags:
+    tags-ignore:
       - ""
 name: Test
 jobs:
