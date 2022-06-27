@@ -19,3 +19,7 @@
 
 # Go workspace file
 go.work
+
+
+# Deffault app config file
+.config.yaml
