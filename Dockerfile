@@ -5,4 +5,4 @@ WORKDIR /app/tmp
 RUN go build -o ../rest_auth_proxy .
 WORKDIR /app
 RUN rm -rf /app/tmp
-CMD ["/app/rest_auth_proxy"]
+ENTRYPOINT ["/app/rest_auth_proxy"]
