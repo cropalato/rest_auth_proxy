@@ -31,7 +31,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: cropalato/rest_proxy
+          images: cropalato/rest_auth_proxy
           tags: |
             type=ref,event=branch
             type=ref,event=pr
