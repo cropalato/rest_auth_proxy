@@ -25,4 +25,10 @@ jobs:
 
       - name: Run Build
         run: |
+          pwd
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o rest_auth_proxy .
+          ls ./
+      - name: Checking Build
+        run: |
+          pwd
+          ls ./
