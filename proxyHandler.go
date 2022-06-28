@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"regexp"
 	"time"
@@ -30,6 +29,9 @@ func (h *headerRules) requestAuthz(method string, url string, header_key string,
 			}
 			for _, u := range a.PathRegEx {
 				if match, _ := regexp.MatchString(u, url); match {
+					if klog.V(5) {
+						klog.Info(fmt.Sprintf("Matched"))
+					}
 					return nil
 				}
 
@@ -43,20 +45,24 @@ func (h *headerRules) proxyHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var override bool
 	err = nil
-	for k := range r.Header {
-		err = h.requestAuthz(r.Method, r.URL.Path, k, r.Header.Get(k))
+	header_token_req := r.Header.Get(header_token)
+	if header_token_req != "" {
+		err = h.requestAuthz(r.Method, r.URL.Path, header_token, header_token_req)
 		if err != nil {
-			klog.V(5).Info(fmt.Sprintf("No rule for %v %v using header %v:%v.", r.Method, r.URL.Path, k, r.Header.Get(k)))
-			continue
+			if klog.V(5) {
+				klog.Info(fmt.Sprintf("No rule for %v %v using header %v:%v.", r.Method, r.URL.Path, header_token, header_token_req))
+			}
 		}
 	}
-	if override = err == nil; override {
-		klog.V(3).Info(fmt.Sprintf("Forwarding request without changes."))
+	if override = err == nil; !override {
+		if klog.V(3) {
+			klog.Info(fmt.Sprintf("Forwarding request without changes."))
+		}
 	}
-	new_url := fmt.Sprintf("%s%s", pdns_api_url, r.URL)
+	new_url := fmt.Sprintf("%s%s", server_api_url, r.URL)
 	pr, err := forwardRequest(new_url, r, override)
 	if err != nil {
-		log.Fatalln(fmt.Sprintf("Failed forwaring request. %v", err))
+		klog.Fatal(fmt.Sprintf("Failed forwaring request. %v", err))
 	}
 	w.WriteHeader(pr.statusCode)
 	w.Write(pr.body)
@@ -82,7 +88,7 @@ func forwardRequest(url string, r *http.Request, override bool) (proxyResp, erro
 		}
 	}
 	if override {
-		req.Header.Set(header_key, pdns_api_token)
+		req.Header.Set(header_token, server_api_token)
 	}
 	response, err := client.Do(req)
 	if err != nil {
