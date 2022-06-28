@@ -3,23 +3,26 @@ name: Generate release-artifacts
 
 # on events
 on:
-  release:
-    types: 
-        - created
+  push:
+    tags: 
+      - build
 
 # workflow tasks
 jobs:
-  generate:
-    name: Generate cross-platform builds
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v2
-      - name: Generate build files
-        uses: thatisuday/go-cross-build@v1
+      - uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
         with:
-            platforms: 'linux/amd64, darwin/amd64, windows/amd64'
-            package: ''
-            name: 'header_proxy'
-            compress: 'true'
-            dest: 'dist'
+          go-version: 18 # The Go version to download (if necessary) and use.
+          cache: true
+          cache-dependency-path: |
+            **/go.sum
+            **/go.mod
+
+      - name Run Build
+        run |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o rest_auth_proxy .

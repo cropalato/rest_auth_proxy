@@ -14,8 +14,8 @@ type Authorization struct {
 }
 
 type requesAuthz struct {
-	Method    string   `json:method`
-	PathRegEx []string `json:pathregex`
+	Method    string   `json:"method"`
+	PathRegEx []string `json:"pathregex"`
 }
 
 type headerRules map[string][]requesAuthz
