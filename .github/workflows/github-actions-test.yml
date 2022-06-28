@@ -13,6 +13,10 @@ jobs:
       - name: CheckOut Repo
         uses: actions/checkout@v2
 
+      - name: Run Build
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o rest_auth_proxy .
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
@@ -59,8 +63,5 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
-          # labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          output: type=image,push=true
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
