@@ -5,17 +5,12 @@ on:
       - "v*.*.*"
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
 
       - name: CheckOut Repo
         uses: actions/checkout@v2
-
-      - name: Run Build
-        run: |
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o rest_auth_proxy .
 
       - name: Set up Docker Buildx
         id: buildx

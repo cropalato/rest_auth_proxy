@@ -1,8 +1,6 @@
 FROM golang:alpine
 RUN mkdir /app
-RUN mkdir /app/tmp
-COPY . /app/tmp
+COPY . /app
 WORKDIR /app
-RUN go build -o rest_auth_proxy ./tmp/.
-RUN rm -rf /app/tmp
+RUN go build -o rest_auth_proxy .
 CMD ["/app/rest_auth_proxy"]
