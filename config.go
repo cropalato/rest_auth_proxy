@@ -11,13 +11,20 @@ type Authorization struct {
 	PathRegEx []string `yaml:"pathregex"`
 }
 
+type requesAuthz struct {
+	Method    string   `json:method`
+	PathRegEx []string `json:pathregex`
+}
+
+type headerRules map[string][]requesAuthz
+
 //type ConfigFile map[string][]Authorization
 type ConfigFile struct {
-	Listen         string                     `yaml:"listen"`
-	Pdns_api_url   string                     `yaml:"pdns_api_url"`
-	Pdns_api_token string                     `yaml:"pdns_api_token"`
-	DebugMode      bool                       `yaml:"debugMode"`
-	Rules          map[string][]Authorization `yaml:"rules"`
+	Listen         string      `yaml:"listen"`
+	Pdns_api_url   string      `yaml:"pdns_api_url"`
+	Pdns_api_token string      `yaml:"pdns_api_token"`
+	DebugMode      bool        `yaml:"debugMode"`
+	Rules          headerRules `yaml:"rules"`
 }
 
 var (

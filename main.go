@@ -16,8 +16,9 @@ var (
 	cfgFile        string = "./config.yaml"
 	pdns_api_url   string = ""
 	pdns_api_token string = ""
+	header_key     string = "X-API-Key"
 	listen         string = ":9090"
-	proxyRules     map[string][]Authorization
+	rule_map       headerRules
 )
 
 func LookupEnvOrString(key string, defaultVal string) string {
@@ -44,6 +45,7 @@ func main() {
 
 	flag.StringVar(&cfgFile, "config-file", LookupEnvOrString("PAP_CONFIG_FILE", cfgFile), "Config File.")
 	flag.StringVar(&listen, "listen", LookupEnvOrString("PAP_LISTEN", listen), "Listenning socket.")
+	flag.StringVar(&header_key, "header-key", LookupEnvOrString("PAP_HEADER_KEY", header_key), "Header key used to authentication.")
 	flag.StringVar(&pdns_api_url, "url", LookupEnvOrString("PAP_PDNS_API_URL", pdns_api_url), "PowerDNS server API URL.")
 	flag.StringVar(&pdns_api_token, "pdns-api-token", LookupEnvOrString("PAP_PDNS_API_TOKEN", pdns_api_url), "PowerDNS server API TOKEN.")
 	flag.Parse()
@@ -61,11 +63,11 @@ func main() {
 	if len(config.Rules) == 0 {
 		log.Fatalf("Missing Rules from config file.")
 	}
-	proxyRules = config.Rules
+	rule_map = config.Rules
 
 	klog.V(5).Info(fmt.Sprintf("Finished process info will be send to %s.", pdns_api_url))
 
-	http.HandleFunc("/", proxyHandler)
+	http.HandleFunc("/", rule_map.proxyHandler)
 
 	klog.V(1).Info(fmt.Sprintf("Listening http requests from %s.", listen))
 	err := http.ListenAndServe(listen, nil)
