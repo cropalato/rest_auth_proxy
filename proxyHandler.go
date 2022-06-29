@@ -62,7 +62,7 @@ func (h *headerRules) proxyHandler(w http.ResponseWriter, r *http.Request) {
 	newURL := fmt.Sprintf("%s%s", serverAPIURL, r.URL)
 	pr, err := forwardRequest(newURL, r, override)
 	if err != nil {
-		klog.Fatal(fmt.Sprintf("Failed forwaring request. %v", err))
+		klog.Errorf(fmt.Sprintf("Failed forwaring request. %v", err))
 	}
 	w.WriteHeader(pr.statusCode)
 	w.Write(pr.body)
