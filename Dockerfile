@@ -1,4 +1,7 @@
 FROM golang:alpine
+RUN apk upgrade --update-cache --available && \
+    apk add openssl && \
+    rm -rf /var/cache/apk/*
 RUN mkdir -p /app/tmp
 COPY . /app/tmp
 WORKDIR /app/tmp
