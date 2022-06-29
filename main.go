@@ -13,15 +13,16 @@ import (
 )
 
 var (
-	cfgFile          string = "./.config.yaml"
-	server_api_url   string = ""
-	server_api_token string = ""
-	header_token     string = ""
-	listen           string = ""
-	rule_env         string = ""
-	rule_map         headerRules
+	cfgFile        string = "./.config.yaml"
+	serverAPIURL   string = ""
+	serverAPIToken string = ""
+	headerToken    string = ""
+	listen         string = ""
+	ruleEnv        string = ""
+	ruleMap        headerRules
 )
 
+// LookupEnvOrString returns the value from env variable key is exists or defaultVal as string
 func LookupEnvOrString(key string, defaultVal string) string {
 	if val, ok := os.LookupEnv(key); ok {
 		return val
@@ -29,6 +30,7 @@ func LookupEnvOrString(key string, defaultVal string) string {
 	return defaultVal
 }
 
+// LookupEnvOrBool returns the value from env variable key is exists or defaultVal as boolean
 func LookupEnvOrBool(key string, defaultVal bool) bool {
 	if val, ok := os.LookupEnv(key); ok {
 		v, err := strconv.ParseBool(val)
@@ -45,11 +47,11 @@ func main() {
 	defer klog.Flush()
 
 	flag.StringVar(&cfgFile, "config-file", LookupEnvOrString("RAP_CONFIG_FILE", cfgFile), "Config File.")
-	flag.StringVar(&rule_env, "rules", LookupEnvOrString("RAP_RULES", rule_env), "json format rules.")
+	flag.StringVar(&ruleEnv, "rules", LookupEnvOrString("RAP_RULES", ruleEnv), "json format rules.")
 	flag.StringVar(&listen, "listen", LookupEnvOrString("RAP_LISTEN", listen), "Listenning socket.")
-	flag.StringVar(&header_token, "header-key", LookupEnvOrString("RAP_HEADER_KEY", header_token), "Header key used to authentication.")
-	flag.StringVar(&server_api_url, "url", LookupEnvOrString("RAP_API_URL", server_api_url), "Remote server API URL.")
-	flag.StringVar(&server_api_token, "server-api-token", LookupEnvOrString("RAP_API_TOKEN", server_api_url), "Remote server API TOKEN.")
+	flag.StringVar(&headerToken, "header-key", LookupEnvOrString("RAP_HEADER_KEY", headerToken), "Header key used to authentication.")
+	flag.StringVar(&serverAPIURL, "url", LookupEnvOrString("RAP_API_URL", serverAPIURL), "Remote server API URL.")
+	flag.StringVar(&serverAPIToken, "server-api-token", LookupEnvOrString("RAP_API_TOKEN", serverAPIURL), "Remote server API TOKEN.")
 	flag.Parse()
 
 	if err := config.loadConfig(cfgFile); err != nil {
@@ -63,37 +65,37 @@ func main() {
 			listen = ":9000"
 		}
 	}
-	if header_token == "" {
-		if config.Header_token != "" {
-			header_token = config.Header_token
+	if headerToken == "" {
+		if config.HeaderToken != "" {
+			headerToken = config.HeaderToken
 		} else {
-			header_token = "X-API-Key"
+			headerToken = "X-API-Key"
 		}
 	}
-	if server_api_url == "" {
-		if config.Server_api_url == "" {
+	if serverAPIURL == "" {
+		if config.ServerAPIURL == "" {
 			klog.Fatalf("Missing Remote Server API URL.")
 		}
-		server_api_url = config.Server_api_url
+		serverAPIURL = config.ServerAPIURL
 	}
-	if server_api_token == "" {
-		if config.Server_api_token == "" {
+	if serverAPIToken == "" {
+		if config.ServerAPIToken == "" {
 			klog.Fatalf("Missing remote API token")
 		}
-		server_api_token = config.Server_api_token
+		serverAPIToken = config.ServerAPIToken
 	}
-	if err := json.Unmarshal([]byte(rule_env), &rule_map); err != nil {
+	if err := json.Unmarshal([]byte(ruleEnv), &ruleMap); err != nil {
 		if len(config.Rules) == 0 {
 			klog.Warning("No rules defined via environment variables or config file.")
 		}
-		rule_map = config.Rules
+		ruleMap = config.Rules
 	}
 
 	if klog.V(5) {
-		klog.Info(fmt.Sprintf("Finished process info will be send to %s.", server_api_url))
+		klog.Info(fmt.Sprintf("Finished process info will be send to %s.", serverAPIURL))
 	}
 
-	http.HandleFunc("/", rule_map.proxyHandler)
+	http.HandleFunc("/", ruleMap.proxyHandler)
 
 	if klog.V(1) {
 		klog.Info(fmt.Sprintf("Listening http requests from %s.", listen))

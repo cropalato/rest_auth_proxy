@@ -17,10 +17,10 @@ type proxyResp struct {
 	statusCode int
 }
 
-func (h *headerRules) requestAuthz(method string, url string, header_key string, header_value string) error {
+func (h *headerRules) requestAuthz(method string, url string, headerKey string, headerValue string) error {
 
 	for k, v := range *h {
-		if k != header_value {
+		if k != headerValue {
 			continue
 		}
 		for _, a := range v {
@@ -38,19 +38,19 @@ func (h *headerRules) requestAuthz(method string, url string, header_key string,
 			}
 		}
 	}
-	return errors.New("authz: Permission deny.")
+	return errors.New("authz: Permission deny")
 }
 
 func (h *headerRules) proxyHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var override bool
 	err = nil
-	header_token_req := r.Header.Get(header_token)
-	if header_token_req != "" {
-		err = h.requestAuthz(r.Method, r.URL.Path, header_token, header_token_req)
+	headerTokenReq := r.Header.Get(headerToken)
+	if headerTokenReq != "" {
+		err = h.requestAuthz(r.Method, r.URL.Path, headerToken, headerTokenReq)
 		if err != nil {
 			if klog.V(5) {
-				klog.Info(fmt.Sprintf("No rule for %v %v using header %v:%v.", r.Method, r.URL.Path, header_token, header_token_req))
+				klog.Info(fmt.Sprintf("No rule for %v %v using header %v:%v.", r.Method, r.URL.Path, headerToken, headerTokenReq))
 			}
 		}
 	}
@@ -59,8 +59,8 @@ func (h *headerRules) proxyHandler(w http.ResponseWriter, r *http.Request) {
 			klog.Info(fmt.Sprintf("Forwarding request without changes."))
 		}
 	}
-	new_url := fmt.Sprintf("%s%s", server_api_url, r.URL)
-	pr, err := forwardRequest(new_url, r, override)
+	newURL := fmt.Sprintf("%s%s", serverAPIURL, r.URL)
+	pr, err := forwardRequest(newURL, r, override)
 	if err != nil {
 		klog.Fatal(fmt.Sprintf("Failed forwaring request. %v", err))
 	}
@@ -88,7 +88,7 @@ func forwardRequest(url string, r *http.Request, override bool) (proxyResp, erro
 		}
 	}
 	if override {
-		req.Header.Set(header_token, server_api_token)
+		req.Header.Set(headerToken, serverAPIToken)
 	}
 	response, err := client.Do(req)
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 	"k8s.io/klog/v2"
 )
 
+// Authorization is used to validate it method + URL is allowed.
 type Authorization struct {
 	Method    string   `yaml:"method"`
 	PathRegEx []string `yaml:"pathregex"`
@@ -20,13 +21,13 @@ type requesAuthz struct {
 
 type headerRules map[string][]requesAuthz
 
-//type ConfigFile map[string][]Authorization
+//ConfigFile is the structure used to map the config file.
 type ConfigFile struct {
-	Listen           string      `yaml:"listen"`
-	Server_api_url   string      `yaml:"server_api_url"`
-	Server_api_token string      `yaml:"server_api_token"`
-	Header_token     string      `yaml:"header_token"`
-	Rules            headerRules `yaml:"rules"`
+	Listen         string      `yaml:"listen"`
+	ServerAPIURL   string      `yaml:"serverAPIURL"`
+	ServerAPIToken string      `yaml:"serverAPIToken"`
+	HeaderToken    string      `yaml:"headerToken"`
+	Rules          headerRules `yaml:"rules"`
 }
 
 var (
