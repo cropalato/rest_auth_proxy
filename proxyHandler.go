@@ -64,6 +64,7 @@ func (h *headerRules) proxyHandler(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		w.WriteHeader(pr.statusCode)
 		w.Write(pr.body)
+		return
 	}
 	klog.Errorf(fmt.Sprintf("Failed forwaring request. %v", err))
 	w.WriteHeader(http.StatusInternalServerError)
