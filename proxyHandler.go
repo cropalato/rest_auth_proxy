@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/fcjr/aia-transport-go"
 	"k8s.io/klog"
 )
 
@@ -74,8 +75,14 @@ func (h *headerRules) proxyHandler(w http.ResponseWriter, r *http.Request) {
 func forwardRequest(url string, r *http.Request, override bool) (proxyResp, error) {
 	pr := new(proxyResp)
 	method := r.Method
+	tr, err := aia.NewTransport()
+	if err != nil {
+		return *pr, err
+	}
+
 	client := &http.Client{
-		Timeout: time.Second * 10,
+		Timeout:   time.Second * 10,
+		Transport: tr,
 	}
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
