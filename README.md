@@ -70,3 +70,4 @@ docker run --name rest_auth_proxy \
 -e 'RAP_API_URL=http://dns.acme.foo:8081' \
 -p 9998:9000 --rm cropalato/rest_auth_proxy:latest
 ```
+
