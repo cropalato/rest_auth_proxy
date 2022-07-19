@@ -1,0 +1,49 @@
+name: github_action_test
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-project:
+    strategy:
+      matrix:
+        go: [1.18]
+        #os: [ubuntu]
+        os: [macos, ubuntu]
+    name: Build golang application
+    runs-on: ${{ matrix.os}}-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Go environment
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go }}
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+      - run: go build -o test-${{ matrix.os }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-${{ matrix.os }}
+          path: ./
+  release-project:
+    strategy:
+      matrix:
+        #os: [macos, windows, ubuntu]
+        os: [ubuntu]
+    name: Release golang application
+    runs-on: ubuntu-latest
+    needs: build-project
+    steps:
+      - name: Download applications
+        uses: actions/download-artifact@v3
+        #with:
+          #name: test-${{ matrix.os }}
+      - run: ls -la 
+      - name: Create Github release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: test
+          allowUpdates: true
+          artifacts: "**/test-*"
