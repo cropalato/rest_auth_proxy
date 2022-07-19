@@ -31,7 +31,7 @@ func (h *headerRules) requestAuthz(method string, url string, headerKey string, 
 			for _, u := range a.PathRegEx {
 				if match, _ := regexp.MatchString(u, url); match {
 					if klog.V(5) {
-						klog.Info(fmt.Sprintf("Matched"))
+						klog.Info("Matched")
 					}
 					return nil
 				}
@@ -57,19 +57,23 @@ func (h *headerRules) proxyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if override = err == nil; !override {
 		if klog.V(3) {
-			klog.Info(fmt.Sprintf("Forwarding request without changes."))
+			klog.Info("Forwarding request without changes.")
 		}
 	}
 	newURL := fmt.Sprintf("%s%s", serverAPIURL, r.URL)
 	pr, err := forwardRequest(newURL, r, override)
 	if err == nil {
 		w.WriteHeader(pr.statusCode)
-		w.Write(pr.body)
+		if _, err = w.Write(pr.body); err != nil {
+			klog.Errorf("Write failed: %v", err)
+		}
 		return
 	}
 	klog.Errorf(fmt.Sprintf("Failed forwaring request. %v", err))
 	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte(fmt.Sprintf("%v", err)))
+	if _, err = w.Write([]byte(fmt.Sprintf("%v", err))); err != nil {
+		klog.Errorf("Write failed: %v", err)
+	}
 }
 
 func forwardRequest(url string, r *http.Request, override bool) (proxyResp, error) {
@@ -86,7 +90,7 @@ func forwardRequest(url string, r *http.Request, override bool) (proxyResp, erro
 	}
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		return *pr, fmt.Errorf("Got error %s", err.Error())
+		return *pr, fmt.Errorf("got error %s", err.Error())
 	}
 	for k, v := range r.Header {
 		if len(v) > 1 {
@@ -102,10 +106,12 @@ func forwardRequest(url string, r *http.Request, override bool) (proxyResp, erro
 	}
 	response, err := client.Do(req)
 	if err != nil {
-		return *pr, fmt.Errorf("Got error %s", err.Error())
+		return *pr, fmt.Errorf("got error %s", err.Error())
 	}
 	body, _ := ioutil.ReadAll(response.Body)
-	response.Body.Close()
+	if err = response.Body.Close(); err != nil {
+		klog.Errorf("close error: %v", err)
+	}
 	pr.statusCode = response.StatusCode
 	pr.headers = response.Header
 	pr.body = body

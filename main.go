@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 
 	"k8s.io/klog"
 )
@@ -26,18 +25,6 @@ var (
 func LookupEnvOrString(key string, defaultVal string) string {
 	if val, ok := os.LookupEnv(key); ok {
 		return val
-	}
-	return defaultVal
-}
-
-// LookupEnvOrBool returns the value from env variable key is exists or defaultVal as boolean
-func LookupEnvOrBool(key string, defaultVal bool) bool {
-	if val, ok := os.LookupEnv(key); ok {
-		v, err := strconv.ParseBool(val)
-		if err != nil {
-			klog.Fatal(fmt.Sprintf("LookupEnvOrBool[%s]: %v", key, err))
-		}
-		return v
 	}
 	return defaultVal
 }

@@ -1,0 +1,23 @@
+name: Push
+on:
+  push:
+    branches:
+      - "**"
+      - "!main"
+jobs:
+  build-project:
+    strategy:
+      matrix:
+        go: [1.18]
+        os: [ubuntu]
+    name: Checking golang application
+    runs-on: ${{ matrix.os}}-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Go environment
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go }}
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
