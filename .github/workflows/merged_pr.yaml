@@ -22,11 +22,11 @@ jobs:
           go-version: ${{ matrix.go }}
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
-      - run: go build -o test-${{ matrix.os }}
+      - run: go build -o raproxy-${{ matrix.os }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: test-${{ matrix.os }}
+          name: raproxy-${{ matrix.os }}
           path: ./
   release-project:
     if: ((github.event.action == 'closed' && github.event.pull_request.merged == true))
@@ -40,12 +40,10 @@ jobs:
     steps:
       - name: Download applications
         uses: actions/download-artifact@v3
-        #with:
-          #name: test-${{ matrix.os }}
       - run: ls -la 
       - name: Create Github release
         uses: ncipollo/release-action@v1
         with:
-          tag: test
+          tag: "v1.0.${{ github.event.pull_request.number }}"
           allowUpdates: true
-          artifacts: "**/test-*"
+          artifacts: "**/raproxy-*"
