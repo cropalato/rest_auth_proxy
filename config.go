@@ -8,12 +8,6 @@ import (
 	"k8s.io/klog/v2"
 )
 
-// Authorization is used to validate it method + URL is allowed.
-type Authorization struct {
-	Method    string   `yaml:"method"`
-	PathRegEx []string `yaml:"pathregex"`
-}
-
 type requesAuthz struct {
 	Method    string   `json:"method"`
 	PathRegEx []string `json:"pathregex"`
